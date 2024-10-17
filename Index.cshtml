@@ -1,0 +1,95 @@
+﻿@*@model IEnumerable<projectnew.Models.finance>
+
+<h1>Your Expenses Reports</h1>
+
+<table class="table table-striped" style="color: white;">
+    <thead>
+        <tr>
+            <th style="color: white;">Category</th>
+            <th style="color: white;">Amount</th>
+            <th style="color: white;">Date</th>
+            <th style="color: white;">Description</th>
+            <th style="color: white;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var financeItem in Model)
+        {
+            <tr>
+                <td style="color: white;">@financeItem.category</td>
+                <td style="color: white;">@financeItem.amount</td>
+                <td style="color: white;">@financeItem.expenseDate.ToShortDateString()</td>
+                <td style="color: white;">@financeItem.description</td>
+                <td>
+                    <a href="@Url.Action("Edit", "finance", new { id = financeItem.Id })" class="btn btn-primary">Edit</a>
+                    <a href="@Url.Action("Delete", "finance", new { id = financeItem.Id })" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@await Html.PartialAsync("~/Views/Home/_Mypartialview.cshtml", ViewData["TotalFinanceRecords"])*@
+
+
+
+
+
+@model IEnumerable<projectnew.Models.finance>
+
+<h1>Your Expenses Reports</h1>
+
+<!-- Placeholder for loading -->
+<div id="loadingMessage" style="color:white;">Loading finance records, please wait...</div>
+
+<!-- Table to display finance records -->
+<table class="table table-striped" style="color: white;">
+    <thead>
+        <tr>
+            <th style="color: white;">Category</th>
+            <th style="color: white;">Amount</th>
+            <th style="color: white;">Date</th>
+            <th style="color: white;">Description</th>
+            <th style="color: white;">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="financeTableBody">
+        <!-- AJAX will populate this body -->
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Fetch finance data using AJAX GET
+        $.ajax({
+            url: '@Url.Action("GetAllFinance", "finance")', // Controller action to fetch all finance records
+            type: 'GET',
+            success: function (data) {
+                if (data.success) {
+                    $('#loadingMessage').hide(); // Hide the loading message
+                    var tableBody = '';
+                    $.each(data.financeList, function (index, financeItem) {
+                        tableBody += `
+                            <tr>
+                                <td style="color: white;">${financeItem.category}</td>
+                                <td style="color: white;">${financeItem.amount}</td>
+                                <td style="color: white;">${new Date(financeItem.expenseDate).toLocaleDateString()}</td>
+                                <td style="color: white;">${financeItem.description}</td>
+                                <td>
+                                    <a href="@Url.Action("Edit", "finance")?id=${financeItem.id}" class="btn btn-primary">Edit</a>
+                                    <a href="@Url.Action("Delete", "finance")?id=${financeItem.id}" class="btn btn-danger">Delete</a>
+                                </td>
+                            </tr>`;
+                    });
+                    $('#financeTableBody').html(tableBody); // Populate table
+                } else {
+                    $('#financeTableBody').html('<tr><td colspan="5" style="color:white;">No records found</td></tr>');
+                }
+            },
+            error: function () {
+                $('#financeTableBody').html('<tr><td colspan="5" style="color:white;">Error loading data</td></tr>');
+            }
+        });
+    });
+</script>
