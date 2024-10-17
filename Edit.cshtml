@@ -1,0 +1,199 @@
+﻿@*@model projectnew.Models.finance
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Finance - YourAppName</title>
+    <link rel="icon" type="image/png" href="black.svg">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="~/css/styles.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('../newbg.JPG');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh; /* Ensure background covers entire viewport height */
+            background-color: black;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8); /* Transparent white background for card */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>Edit Your Reports</h2>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Edit" asp-route-id="@Model.Id">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="Id" />
+                            <div class="form-group">
+                                <label asp-for="category" class="control-label"></label>
+                                <input asp-for="category" class="form-control" placeholder="Enter category" />
+                                <span asp-validation-for="category" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="amount" class="control-label"></label>
+                                <input asp-for="amount" class="form-control" placeholder="Enter amount" />
+                                <span asp-validation-for="amount" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="expenseDate" class="control-label"></label>
+                                <input asp-for="expenseDate" type="date" class="form-control" />
+                                <span asp-validation-for="expenseDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="description" class="control-label"></label>
+                                <textarea asp-for="description" class="form-control" placeholder="Enter description"></textarea>
+                                <span asp-validation-for="description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group text-center">
+                                <input type="submit" value="Save Changes" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>*@
+
+
+
+
+
+@model projectnew.Models.finance
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Finance - YourAppName</title>
+    <link rel="icon" type="image/png" href="black.svg">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="~/css/styles.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        body {
+            background-image: url('../newbg.JPG');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh; /* Ensure background covers entire viewport height */
+            background-color: black;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8); /* Transparent white background for card */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>Edit Your Reports</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="editForm">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="Id" />
+                            <div class="form-group">
+                                <label asp-for="category" class="control-label"></label>
+                                <input asp-for="category" class="form-control" placeholder="Enter category" />
+                                <span asp-validation-for="category" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="amount" class="control-label"></label>
+                                <input asp-for="amount" class="form-control" placeholder="Enter amount" />
+                                <span asp-validation-for="amount" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="expenseDate" class="control-label"></label>
+                                <input asp-for="expenseDate" type="date" class="form-control" />
+                                <span asp-validation-for="expenseDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="description" class="control-label"></label>
+                                <textarea asp-for="description" class="form-control" placeholder="Enter description"></textarea>
+                                <span asp-validation-for="description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group text-center">
+                                <input type="submit" value="Save Changes" class="btn btn-primary" />
+                            </div>
+                        </form>
+                        <div id="responseMessage" class="text-center mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // AJAX GET request to fetch existing finance data
+            var financeId = '@Model.Id'; // Use the ID from the model
+            $.ajax({
+                url: '@Url.Action("GetFinance", "finance")', // Action to fetch finance record
+                type: 'GET',
+                data: { id: financeId },
+                success: function (data) {
+                    if (data.success) {
+                        // Populate form fields with the fetched data
+                        $('input[name="category"]').val(data.finance.category);
+                        $('input[name="amount"]').val(data.finance.amount);
+                        $('input[name="expenseDate"]').val(data.finance.expenseDate.split('T')[0]); // Format date
+                        $('textarea[name="description"]').val(data.finance.description);
+                    } else {
+                        $('#responseMessage').html('<div class="alert alert-danger">' + data.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#responseMessage').html('<div class="alert alert-danger">An error occurred while fetching data.</div>');
+                }
+            });
+
+            // Handle form submission
+            $('#editForm').submit(function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                $.ajax({
+                    url: '@Url.Action("Edit", "finance")', // Change this to your Edit action URL
+                    type: 'POST',
+                    data: $(this).serialize(), // Serialize form data
+                    success: function (response) {
+                        if (response.success) {
+                            $('#responseMessage').html('<div class="alert alert-success">' + response.message + '</div>');
+                            setTimeout(function () {
+                                window.location.href = '@Url.Action("Index", "finance")'; // Redirect to index page after success
+                            }, 2000); // 2 second delay
+                        } else {
+                            $('#responseMessage').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function () {
+                        $('#responseMessage').html('<div class="alert alert-danger">An error occurred while saving changes.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
