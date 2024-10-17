@@ -1,0 +1,239 @@
+﻿
+@*@model projectnew.Models.finance
+
+<h1>Add a New Expense</h1>
+
+<form method="post" action="/finance/Addfin">
+    <div>
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" />
+    </div>
+    <div>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" />
+    </div>
+    <input type="submit" value="Add Expense" />
+</form>*@
+@model projectnew.Models.finance
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('../bg.JPG');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px 0;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+            .profile-info img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+        .profile-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+            .nav-links li {
+                margin-right: 20px;
+            }
+
+                .nav-links li:last-child {
+                    margin-right: 0;
+                }
+
+            .nav-links a {
+                color: #fff;
+                text-decoration: none;
+                font-size: 14px;
+                transition: color 0.3s ease-in-out;
+            }
+
+                .nav-links a:hover {
+                    color: blue;
+                }
+
+        .card {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        #resultMessage {
+            margin-bottom: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="profile-info">
+                <img src="~/images/@ViewData["ProfilePicture"]" alt="Profile Picture">
+                <span class="profile-name">Welcome to Your Profile</span>
+               
+            </div>
+            <ul class="nav-links">
+                <li> <a href="@Url.Action("UploadFile", "Home")" >Change Profile Picture</a></li>
+                <li><a href="@Url.Action("Index","finance")">Your Reports</a></li>
+                <li><a href="@Url.Action("Myproject","Home")">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Expense Tracking</h5>
+                <form id="financeForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <input type="text" id="category" name="category" class="form-control" placeholder="Enter category" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="amount">Amount:</label>
+                            <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter amount" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="expenseDate">Date:</label>
+                            <input type="date" id="expenseDate" name="expenseDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                    <div id="resultMessage" class="mt-3"></div>
+                </form>
+                <div id="resultMessage"></div>
+            </div>
+        </div>
+    </div>
+   @* <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // AJAX POST for Addfin
+            $('#financeForm').on('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Addfin", "Finance")', // Call the Finance controller's Addfin method
+                    data: $(this).serialize(), // Serialize the form data
+                    success: function (response) {
+                        $('#resultMessage').html('<div class="alert alert-success">Expense added successfully!</div>');
+                        $('#financeForm')[0].reset(); // Reset the form
+                    },
+                    error: function (error) {
+                        $('#resultMessage').html('<div class="alert alert-danger">Error adding expense: ' + error.statusText + '</div>');
+                    }
+                });
+            });
+        });
+    </script>*@
+
+    <!-- Notification Box HTML -->
+    <div id="notificationBox" style="display:none; position: fixed; top: 20px; right: 20px; background-color: #28a745; color: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 1000;">
+        <strong>Notification:</strong> <span id="notificationMessage"></span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+    <script>
+        // Create a new SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
+
+        // Start the SignalR connection and handle potential errors
+        connection.start()
+            .then(() => console.log('Connected to the notification hub'))
+            .catch(err => console.error('Connection error: ', err.toString()));
+
+        // Listen for notifications from the server
+        connection.on("ReceiveNotification", function (message) {
+            // Display the notification message in a custom styled box
+            showNotification(message);
+        });
+
+        // AJAX form submission logic
+        $(document).ready(function () {
+            $('#financeForm').on('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                // Perform AJAX POST request to add a finance record
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Addfin", "Finance")', // The controller action handling the form submission
+                    data: $(this).serialize(), // Serialize the form data
+                    success: function (response) {
+                        if (response.success) {
+                            // Show success message
+                            $('#resultMessage').html('<div class="alert alert-success">Expense added successfully!</div>');
+
+                            // Reset the form fields
+                            $('#financeForm')[0].reset();
+
+                            // Notify other clients about the new expense record
+                            connection.invoke("SendNotification", "A new expense has been added.")
+                                .catch(err => console.error("Notification send error: ", err.toString()));
+                        } else {
+                            // If response contains an error, display the error message
+                            $('#resultMessage').html('<div class="alert alert-danger">Error adding expense: ' + response.message + '</div>');
+                        }
+                    },
+                    error: function (error) {
+                        // If AJAX fails, show error message
+                        $('#resultMessage').html('<div class="alert alert-danger">Error adding expense: ' + error.statusText + '</div>');
+                    }
+                });
+            });
+        });
+
+        // Function to show the notification box
+        function showNotification(message) {
+            $('#notificationMessage').text(message); // Set the message text
+
+            // Show the notification box with a slide-down animation
+            $('#notificationBox').slideDown(300).delay(3000).slideUp(300); // Show for 3 seconds
+        }
+    </script>
+
+
+
+</body>
+</html>
